@@ -11,20 +11,21 @@ class HashTable():
             self.size = len(self.table)
             self.number_of_elements = len(List)
     
-    def hash(self, key):
-        if isinstance(key, int):
-            return key % self.size 
-        elif isinstance(key, str) and len(key) != 0:
-            hash_value = 0
-            for letter in key:
-                hash_value += ord(letter)
-                hash_value *= ord(letter)
-            return hash_value
-        else:
-            raise Exception('Invalid key!')
+    # <--- Decided to use python build-in hash function --->
+    # def hash(self, key):
+    #     if isinstance(key, int):
+    #         return key
+    #     elif isinstance(key, str) and len(key) != 0:
+    #         hash_value = 0
+    #         for letter in key:
+    #             hash_value += ord(letter)
+    #             hash_value *= ord(letter)
+    #         return hash_value
+    #     else:
+    #         raise Exception('Invalid key!')
 
     def index(self, key):
-        return self.hash(key) % self.size
+        return hash(key) % self.size
     
     class LinkedList:
         def __init__(self):
@@ -71,7 +72,7 @@ class HashTable():
         for el in List:
             if not isinstance(el, tuple):
                 el = (el, None)
-            index = self.hash(el[0]) % size
+            index = hash(el[0]) % size
             node = self.LinkedList.Node(data=el)
             table[index].add_first(node)
         return table
@@ -103,8 +104,10 @@ class HashTable():
         new_size = int(self.size * self.grow_factor)
         new_table = [self.LinkedList() for _ in range(new_size)]
         for llist in self.table:
+            if llist.head is None:
+                continue
             for node in llist:
-                index = self.hash(node.data[0]) % new_size
+                index = hash(node.data[0]) % new_size
                 node = self.LinkedList.Node(data=node.data)
                 new_table[index].add_first(node)
         self.table = new_table
