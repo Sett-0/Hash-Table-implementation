@@ -71,7 +71,7 @@ class HashTable():
         for el in List:
             if not isinstance(el, tuple):
                 el = (el, None)
-            index = self.hash(el[0]) % len(table)
+            index = self.hash(el[0]) % size
             node = self.LinkedList.Node(data=el)
             table[index].add_first(node)
         return table
@@ -81,13 +81,15 @@ class HashTable():
         if self.table[index].contains_key(key): 
             return 
         self.table[index].add_first(self.LinkedList.Node(data=(key, data)))
+        self.number_of_elements += 1
         
-        if self.size * self.size_threshold > self.number_of_elements + 1:
+        if self.number_of_elements > self.size * self.size_threshold:
             self.grow_table()
         
     def remove(self, key):
         index = self.index(key)
         self.table[index].remove_node(key)
+        self.number_of_elements -= 1
         
     def change_data(self, key, data):
         index = self.index(key)
@@ -98,7 +100,15 @@ class HashTable():
                 node.data = (key, data)
         
     def grow_table(self):
-        pass
+        new_size = int(self.size * self.grow_factor)
+        new_table = [self.LinkedList() for _ in range(new_size)]
+        for llist in self.table:
+            for node in llist:
+                index = self.hash(node.data[0]) % new_size
+                node = self.LinkedList.Node(data=node.data)
+                new_table[index].add_first(node)
+        self.table = new_table
+        self.size = new_size
 
     def __repr__(self):
         nodes = ["------\t START \t------\n"]
@@ -121,7 +131,7 @@ class HashTable():
         return False 
     
 if __name__ == '__main__':
-    people = HashTable(size=2)
+    people = HashTable(size=2, size_threshold=0.5)
     names = ['Oleg', 'Igor', 'Sasha']
     ages = [21, 53, 17]
     for name, age in zip(names, ages):
