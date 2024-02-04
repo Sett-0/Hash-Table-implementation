@@ -92,6 +92,9 @@ class HashTable():
         self.table[index].remove_node(key)
         self.number_of_elements -= 1
         
+        if self.number_of_elements < self.size * self.size_threshold // 4:
+            self.reduce_table()
+        
     def change_data(self, key, data):
         index = self.index(key)
         for node in self.table[index]:
@@ -113,6 +116,19 @@ class HashTable():
         self.table = new_table
         self.size = new_size
 
+    def reduce_table(self):
+        new_size = int(self.size / self.grow_factor)
+        new_table = [self.LinkedList() for _ in range(new_size)]
+        for llist in self.table:
+            if llist.head is None:
+                continue
+            for node in llist:
+                index = hash(node.data[0]) % new_size
+                node = self.LinkedList.Node(data=node.data)
+                new_table[index].add_first(node)
+        self.table = new_table
+        self.size = new_size
+    
     def __repr__(self):
         nodes = ["------\t START \t------\n"]
         for llist in self.table:
